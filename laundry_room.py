@@ -10,22 +10,11 @@ class Reading(object):
 	temp_id = 15
 	# humidity_id = 14
 	house_url = 'http://192.168.1.28'
-	dht = DHT.DHT22(Pin(pin))
 
-	# def __init__(self):
-	# 	self.pin = 5
-	# 	self.temp_id = 8
-	# 	self.humidity_id = 14
-	# 	self.house_url = 'http://192.168.1.28'
-	# 	self.dht = DHT.DHT22(Pin(pin))
-
-	def post(self):
-		self.dht.measure()
-		temp_response = None
-		humdity_response = None
+	def post(self, temperature):
 		try:
 			temp_response = (requests.post("{0}/sensors/{1}/readings.json".format(self.house_url, self.temp_id), 
-						json=self.temp_json(), 
+						json=self.temp_json(temperature), 
 						headers={'Content-Type':'application/json'}))
 		except NotImplementedError:
 			pass
@@ -36,24 +25,8 @@ class Reading(object):
 				print("{0}:{1}".format(temp_response.status_code, temp_response.reason))
 			machine.reset()
 
-		try:
-			humdity_response = (requests.post("{0}/sensors/{1}/readings.json".format(self.house_url, self.humidity_id), 
-						json=self.humidity_json(),
-						headers={'Content-Type':'application/json'}))
-		except NotImplementedError:
-			pass
-		except Exception as e:
-			print(sys.print_exception(e))
-			print("Error posting humidity")
-			if humdity_response:
-				print("{0}:{1}".format(humdity_response.status_code, humdity_response.reason))
-			machine.reset()
-
-	def temp_json(self):
-		return {'reading': {'value': self.convert_to_fahernheit(self.dht.temperature())}}
-
-	def humidity_json(self):
-		return {'reading': {'value': self.dht.humidity()}}
+	def temp_json(self, temperature):
+		return {'reading': {'value': self.convert_to_fahernheit(temperature)}}
 
 	def convert_to_fahernheit(self, val):
 		return val * 1.8 + 32
@@ -73,17 +46,19 @@ def sync_time(minute):
 
 
 def run():
-	sync_time(5)
+	sync_time(1)
+	ds = DS18B20(5)
 
 	while True:
 		try:
 			reading = Reading()
-			reading.post()
-			print(reading.dht.temperature())
+			temperature = ds.temperature()
+			reading.post(temperature
+			print(temperature
 			reading = None
 		except Exception as e:
 			print(sys.print_exception(e))
 
 		print("Sleeping...")
 		# time.sleep(30)
-		time.sleep(5 * 60)
+		time.sleep(1 * 60)
