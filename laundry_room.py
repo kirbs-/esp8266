@@ -3,6 +3,7 @@ from machine import Pin
 import time
 import machine
 import sys
+from sensors import DS18B20
 
 class Reading(object):
 
@@ -12,6 +13,7 @@ class Reading(object):
 	house_url = 'http://192.168.1.28'
 
 	def post(self, temperature):
+		temp_response = None
 		try:
 			temp_response = (requests.post("{0}/sensors/{1}/readings.json".format(self.house_url, self.temp_id), 
 						json=self.temp_json(temperature), 
@@ -31,13 +33,13 @@ class Reading(object):
 	def convert_to_fahernheit(self, val):
 		return val * 1.8 + 32
 
-def parse(lines):
-    yaml = {}
-    for line in lines:
-        if ':' in line:
-            components = line.split(':')
-            yaml[components[0].strip()] = components[1].strip()
-    return yaml
+# def parse(lines):
+#     yaml = {}
+#     for line in lines:
+#         if ':' in line:
+#             components = line.split(':')
+#             yaml[components[0].strip()] = components[1].strip()
+#     return yaml
 
 def sync_time(minute):
 	time_delta = (minute * 60) - (time.time() % (minute * 60))
@@ -53,8 +55,8 @@ def run():
 		try:
 			reading = Reading()
 			temperature = ds.temperature()
-			reading.post(temperature
-			print(temperature
+			reading.post(temperature)
+			print(temperature)
 			reading = None
 		except Exception as e:
 			print(sys.print_exception(e))
