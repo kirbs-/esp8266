@@ -46,6 +46,12 @@ def sync_time(minute):
 	print("Sleeping for {} seconds to sync to {} minutes past the hour.". format(time_delta, minute))
 	time.sleep(time_delta)
 
+def sleep(seconds):
+	rtc = machine.RTC()
+	rtc.irq(trigger=rtc.ALARM0, wake=machine.DEEPSLEEP)
+	rtc.alarm(rtc.ALARM0, seconds * 1000)
+	machine.deepsleep()
+
 
 def run():
 	sync_time(1)
@@ -63,4 +69,5 @@ def run():
 
 		print("Sleeping...")
 		# time.sleep(30)
-		time.sleep(1 * 60)
+		# time.sleep(1 * 60)
+		sleep(10)
