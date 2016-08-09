@@ -104,7 +104,7 @@ def request(method, url, data=None, json=None, headers={}, stream=None):
     resp = Response(s)
     resp.status_code = status
     resp.reason = msg.rstrip()
-    resp.close()
+    resp.content
     return resp
 
 
